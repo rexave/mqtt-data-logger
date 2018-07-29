@@ -5,30 +5,32 @@
 """
 This will log messages to file.Los time,message and topic as JSON data
 """
-mqttclient_log=False #MQTT client logs showing messages
-Log_worker_flag=True
-import paho.mqtt.client as mqtt
-import json
-import os
-import time
-import sys, getopt,random
-import logging
-import mlogger as mlogger
+mqttclient_log = False  # MQTT client logs showing messages
+Log_worker_flag = True
+import random
+import sys
 import threading
 from queue import Queue
-from mqtt_functions import *
-from command import command_input
+
 import command
-#from utilities import convert, print_out
+import mlogger as mlogger
+from command import command_input
+from mqtt_functions import *
+
+# from utilities import convert, print_out
 
 
-q=Queue()
+q = Queue()
+
+
 ##helper functions
 def convert(t):
-    d=""
+    d = ""
     for c in t:  # replace all chars outside BMP with a !
-            d =d+(c if ord(c) < 0x10000 else '!')
-    return(d)
+        d = d + (c if ord(c) < 0x10000 else '!')
+    return (d)
+
+
 ###
 
 def log_worker():
@@ -39,72 +41,69 @@ def log_worker():
             if results is None:
                 continue
             log.log_json(results)
-            #print("message saved ",results["message"])
+            # print("message saved ",results["message"])
     log.close_file()
 
-# MAIN PROGRAM
-options=command.options
 
-if __name__ == "__main__" and len(sys.argv)>=2:
-    options=command_input(options)
+# MAIN PROGRAM
+options = command.options
+
+if __name__ == "__main__" and len(sys.argv) >= 2:
+    options = command_input(options)
 else:
     print("Need broker name and topics to continue.. exiting")
     raise SystemExit(1)
 
-#verbose=options["verbose"]
+# verbose=options["verbose"]
 
 if not options["cname"]:
-    r=random.randrange(1,10000)
-    cname="logger-"+str(r)
+    r = random.randrange(1, 10000)
+    cname = "logger-" + str(r)
 else:
-    cname="logger-"+str(options["cname"])
-log_dir=options["log_dir"]
-log_records=options["log_records"]
-number_logs=options["number_logs"]
-log=mlogger.m_logger(log_dir,log_records,number_logs)
-print("Log Directory =",log_dir)
-print("Log records per log =",log_records)
-if number_logs==0:
+    cname = "logger-" + str(options["cname"])
+log_dir = options["log_dir"]
+log_records = options["log_records"]
+number_logs = options["number_logs"]
+log = mlogger.m_logger(log_dir, log_records, number_logs)
+print("Log Directory =", log_dir)
+print("Log records per log =", log_records)
+if number_logs == 0:
     print("Max logs = Unlimited")
 else:
-    print("Max logs  =",number_logs)
-    
-#log=mlogger.m_logger()
+    print("Max logs  =", number_logs)
 
-if options["username"] !="":
+# log=mlogger.m_logger()
+
+if options["username"] != "":
     client1.username_pw_set(options["username"], options["password"])
 
-
-#Initialise_client_object() # add extra flags
-logging.info("creating client"+cname)
-Initialise_client_object()#create flags
-client=Initialise_clients(cname,mqttclient_log,False)#create and initialise client object
-topics=options["topics"]
-broker=options["broker"]
-port=options["port"]
+# Initialise_client_object() # add extra flags
+logging.info("creating client" + cname)
+Initialise_client_object()  # create flags
+client = Initialise_clients(cname, mqttclient_log, False)  # create and initialise client object
+topics = options["topics"]
+broker = options["broker"]
+port = options["port"]
 if options["storechangesonly"]:
     print("starting storing only changed data")
 else:
     print("starting storing all data")
-    
+
 ##
-#Log_worker_flag=True
-t = threading.Thread(target=log_worker) #start logger
-t.start() #start logging thread
+# Log_worker_flag=True
+t = threading.Thread(target=log_worker)  # start logger
+t.start()  # start logging thread
 ###
 
-client.last_message=dict()
-client.q=q #make queue available as part of client
+client.last_message = dict()
+client.q = q  # make queue available as part of client
 
-
-#loop and wait until interrupted
+# loop and wait until interrupted
 try:
-    run_loop(client,broker,port,topics)
+    run_loop(client, broker, port, topics)
 
 except KeyboardInterrupt:
     print("interrrupted by keyboard")
 
-
-Log_worker_flag=False #stop logging thread
+Log_worker_flag = False  # stop logging thread
 time.sleep(5)
-
