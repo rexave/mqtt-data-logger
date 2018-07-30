@@ -68,38 +68,35 @@ Data can be stored as plain text or in JSON format """
             os.mkdir(self.log_sub_dir)
         return self.log_sub_dir
 
+    def get_log_name(self, log_dir, count):
+        """get log files and directories"""
+        self.log_numbr = "{0:003d}".format(count)
+        logging.info("s is" + str(self.log_numbr))
+        self.file_name = self.log_dir + "/" + "log" + self.log_numbr
+        logging.info("creating log file " + self.file_name)
+        f = open(self.file_name, 'w')  # clears file if it exists
+        f.close()
+        f = open(self.file_name, 'a')
+        return f
 
-def get_log_name(self, log_dir, count):
-    """get log files and directories"""
-    self.log_numbr = "{0:003d}".format(count)
-    logging.info("s is" + str(self.log_numbr))
-    self.file_name = self.log_dir + "/" + "log" + self.log_numbr
-    logging.info("creating log file " + self.file_name)
-    f = open(self.file_name, 'w')  # clears file if it exists
-    f.close()
-    f = open(self.file_name, 'a')
-    return (f)
+    def log_json(self, data):
+        jdata = json.dumps(data) + "\n"
+        self.log_data(jdata)
 
-
-def log_json(self, data):
-    jdata = json.dumps(data) + "\n"
-    self.log_data(jdata)
-
-
-def log_data(self, data):
-    self.data = data
-    try:
-        self.fo.write(data)
-        self.writecount += 1
-        self.__flushlogs()
-        if self.writecount >= self.log_recs:
-            self.count += 1  # counts number of logs
-            if self.count > self.number_logs != 0:
-                logging.info("too many logs: starting from 0")
-                self.count = 0  # reset
-            self.fo = self.get_log_name(self.log_dir, self.count)
-            self.writecount = 0
-    except BaseException as e:
-        logging.error("Error on_data: %s" % str(e))
-        return False
-    return True
+    def log_data(self, data):
+        self.data = data
+        try:
+            self.fo.write(data)
+            self.writecount += 1
+            self.__flushlogs()
+            if self.writecount >= self.log_recs:
+                self.count += 1  # counts number of logs
+                if self.count > self.number_logs != 0:
+                    logging.info("too many logs: starting from 0")
+                    self.count = 0  # reset
+                self.fo = self.get_log_name(self.log_dir, self.count)
+                self.writecount = 0
+        except BaseException as e:
+            logging.error("Error on_data: %s" % str(e))
+            return False
+        return True
