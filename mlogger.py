@@ -24,7 +24,7 @@ Data can be stored as plain text or in JSON format """
         self.log_recs = log_recs
         self.number_logs = number_logs
         self.count = 0
-        self.create_log_dir(self.log_dir)
+        self.log_dir = self.create_log_dir(self.log_dir)
         self.fo = self.get_log_name(self.log_dir, self.count)
         self.new_file_flag = 0
         self.writecount = 0
